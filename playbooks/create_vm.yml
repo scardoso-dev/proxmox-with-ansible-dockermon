@@ -1,0 +1,51 @@
+- name: Création d'une VM Lubuntu sur Proxmox
+  hosts: 127.0.0.1
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Suppression de la VM si elle existe déjà
+      community.general.proxmox_kvm:
+        api_host: "{{ proxmox_api_host }}"
+        api_user: "{{ proxmox_user }}"
+        api_password: "{{ proxmox_password }}"
+        node: "{{ proxmox_node }}"
+        vmid: "{{ proxmox_vm_id }}"
+        state: absent
+        validate_certs: false
+      ignore_errors: true
+
+    - name: Création de la VM avec disque SCSI
+      community.general.proxmox_kvm:
+        api_host: "{{ proxmox_api_host }}"
+        api_user: "{{ proxmox_user }}"
+        api_password: "{{ proxmox_password }}"
+        node: "{{ proxmox_node }}"
+        vmid: "{{ proxmox_vm_id }}"
+        name: vm-lubuntu
+        cores: 2
+        sockets: 1
+        memory: 512
+        scsihw: virtio-scsi-pci
+        ide:
+          ide2: "local:iso/lubuntu-16.04.6-desktop-amd64.iso,media=cdrom"
+        scsi:
+          scsi0: "local-lvm:10"
+        net:
+          net0: "virtio,bridge=vmbr0"
+        ostype: l26
+        boot: cd
+        kvm: false
+        state: present
+        force: true
+        validate_certs: false
+
+    - name: Lancement de la VM
+      community.general.proxmox_kvm:
+        api_host: "{{ proxmox_api_host }}"
+        api_user: "{{ proxmox_user }}"
+        api_password: "{{ proxmox_password }}"
+        node: "{{ proxmox_node }}"
+        vmid: "{{ proxmox_vm_id }}"
+        state: started
+        validate_certs: false

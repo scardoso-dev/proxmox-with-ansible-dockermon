@@ -1,0 +1,5 @@
+proxmox_api_host: "192.168.30.140"
+proxmox_user: "root@pam"
+proxmox_password: "azerty01"
+proxmox_node: "node0"
+proxmox_vm_id: "201"
